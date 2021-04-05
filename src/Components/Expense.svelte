@@ -11,7 +11,7 @@
     displayAmount = !displayAmount;
   }
 
-  const { remove } = getContext("expense");
+  const expense = getContext("expense");
 </script>
 
 <article class="single-expense">
@@ -27,8 +27,10 @@
     {/if}
   </div>
   <div class="expense-buttons">
-    <button class="expense-btn edit-btn"> <i class="fas fa-pen" /> </button>
-    <button class="expense-btn delete-btn" on:click={() => remove(id)}>
+    <button class="expense-btn edit-btn" on:click={() => expense.modify(id)}>
+      <i class="fas fa-pen" />
+    </button>
+    <button class="expense-btn delete-btn" on:click={() => expense.remove(id)}>
       <i class="fas fa-trash" />
     </button>
   </div>

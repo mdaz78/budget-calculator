@@ -1,6 +1,5 @@
 <script>
   import { setContext } from "svelte";
-
   import Navbar from "./Components/Navbar.svelte";
   import ExpenseList from "./Components/ExpenseList.svelte";
   import Totals from "./Components/Totals.svelte";
@@ -10,6 +9,14 @@
 
   let expenses = expensesData;
 
+  let setName = "";
+  let setAmount = null;
+  let setId = null;
+
+  // toggle form variables
+  let isFormOpen = false;
+
+  $: isEditing = setId ? true : false;
   $: total = expenses.reduce((sum, item) => (sum += item.amount), 0);
 
   // functions
@@ -31,13 +38,58 @@
     expenses = [expense, ...expenses];
   }
 
-  setContext("expense", { remove: removeExpense, add: addExpense });
+  function setModifiedExpense(id) {
+    let expense = expenses.find((expense) => expense.id === id);
+
+    setId = expense.id;
+    setAmount = expense.amount;
+    setName = expense.name;
+    showForm();
+  }
+
+  function updateExpense({ name, amount }) {
+    expenses = expenses.map((expense) => {
+      if (expense.id === setId) {
+        return {
+          id: setId,
+          name,
+          amount,
+        };
+      } else {
+        return { ...expense };
+      }
+    });
+
+    setName = "";
+    setAmount = null;
+    setId = null;
+  }
+
+  function showForm() {
+    isFormOpen = true;
+  }
+
+  function hideForm() {
+    isFormOpen = false;
+    setName = "";
+    setAmount = null;
+    setId = null;
+  }
+
+  setContext("expense", {
+    remove: removeExpense,
+    add: addExpense,
+    modify: setModifiedExpense,
+    update: updateExpense,
+  });
 </script>
 
-<Navbar />
+<Navbar {showForm} />
 
 <main class="content">
-  <ExpenseForm />
+  {#if isFormOpen}
+    <ExpenseForm name={setName} amount={setAmount} {isEditing} {hideForm} />
+  {/if}
   <Totals title="Total Expenses" {total} />
   <ExpenseList {expenses} />
   {#if expenses.length > 0}

@@ -1,21 +1,31 @@
 <script>
   import { getContext } from "svelte";
   import Title from "./Title.svelte";
-  let name = "";
-  let amount = null;
-  $: isEmpty = !name || !amount;
 
   const expense = getContext("expense");
 
+  export let name = "";
+  export let amount = null;
+  export let isEditing = false;
+  export let hideForm;
+
+  $: isEmpty = !name || !amount;
+  $: title = isEditing ? "Edit Expense" : "Add Expense";
+
   function handleSubmit() {
-    expense.add({ name, amount });
+    if (isEditing) {
+      expense.update({ name, amount });
+    } else {
+      expense.add({ name, amount });
+    }
+
     name = "";
     amount = null;
   }
 </script>
 
 <section class="form">
-  <Title title="Add Expense" />
+  <Title {title} />
   <form on:submit|preventDefault={handleSubmit} class="expense-form">
     <div class="form-control">
       <label for="name">Name</label>
@@ -35,8 +45,8 @@
       type="submit"
       class="btn btn-block"
       disabled={isEmpty}
-      class:disabled={isEmpty}>Add Expense</button>
-    <button type="button" class="close-btn">
+      class:disabled={isEmpty}>{title}</button>
+    <button type="button" class="close-btn" on:click={hideForm}>
       <i class="fas fa-times" />
       Close
     </button>
