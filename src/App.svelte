@@ -1,15 +1,16 @@
 <script>
-  import { setContext } from "svelte";
-  import Navbar from "./Components/Navbar.svelte";
-  import ExpenseList from "./Components/ExpenseList.svelte";
-  import Totals from "./Components/Totals.svelte";
-  import ExpenseForm from "./Components/ExpenseForm.svelte";
+  import { afterUpdate, onMount, setContext } from 'svelte';
+  import Navbar from './Components/Navbar.svelte';
+  import ExpenseList from './Components/ExpenseList.svelte';
+  import Totals from './Components/Totals.svelte';
+  import ExpenseForm from './Components/ExpenseForm.svelte';
+  import Modal from './Components/Modal.svelte';
 
-  import expensesData from "./expenses.js";
+  // import expensesData from './expenses.js';
 
-  let expenses = expensesData;
+  let expenses = [];
 
-  let setName = "";
+  let setName = '';
   let setAmount = null;
   let setId = null;
 
@@ -60,7 +61,7 @@
       }
     });
 
-    setName = "";
+    setName = '';
     setAmount = null;
     setId = null;
   }
@@ -71,16 +72,35 @@
 
   function hideForm() {
     isFormOpen = false;
-    setName = "";
+    setName = '';
     setAmount = null;
     setId = null;
   }
 
-  setContext("expense", {
+  setContext('expense', {
     remove: removeExpense,
     add: addExpense,
     modify: setModifiedExpense,
     update: updateExpense,
+  });
+
+  // local Storage
+  function setLocalStorage() {
+    const stringifiedExpenses = JSON.stringify(expenses);
+    localStorage.setItem('expenses', stringifiedExpenses);
+  }
+
+  function getExpensesFromLocalstorage() {
+    const stringifiedExpenses = localStorage.getItem('expenses');
+    return JSON.parse(stringifiedExpenses);
+  }
+
+  onMount(() => {
+    expenses = getExpensesFromLocalstorage();
+  });
+
+  afterUpdate(() => {
+    setLocalStorage();
   });
 </script>
 
@@ -88,12 +108,15 @@
 
 <main class="content">
   {#if isFormOpen}
-    <ExpenseForm name={setName} amount={setAmount} {isEditing} {hideForm} />
+    <Modal>
+      <ExpenseForm name={setName} amount={setAmount} {isEditing} {hideForm} />
+    </Modal>
   {/if}
   <Totals title="Total Expenses" {total} />
   <ExpenseList {expenses} />
   {#if expenses.length > 0}
-    <button class="btn btn-primary btn-block" on:click={removeAllExpenses}>Clear
-      Expenses</button>
+    <button class="btn btn-primary btn-block" on:click={removeAllExpenses}
+      >Clear Expenses</button
+    >
   {/if}
 </main>

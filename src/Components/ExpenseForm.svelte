@@ -1,16 +1,16 @@
 <script>
-  import { getContext } from "svelte";
-  import Title from "./Title.svelte";
+  import { getContext } from 'svelte';
+  import Title from './Title.svelte';
 
-  const expense = getContext("expense");
+  const expense = getContext('expense');
 
-  export let name = "";
+  export let name = '';
   export let amount = null;
   export let isEditing = false;
   export let hideForm;
 
   $: isEmpty = !name || !amount;
-  $: title = isEditing ? "Edit Expense" : "Add Expense";
+  $: title = isEditing ? 'Edit Expense' : 'Add Expense';
 
   function handleSubmit() {
     if (isEditing) {
@@ -19,8 +19,9 @@
       expense.add({ name, amount });
     }
 
-    name = "";
+    name = '';
     amount = null;
+    hideForm();
   }
 </script>
 
@@ -45,7 +46,8 @@
       type="submit"
       class="btn btn-block"
       disabled={isEmpty}
-      class:disabled={isEmpty}>{title}</button>
+      class:disabled={isEmpty}>{title}</button
+    >
     <button type="button" class="close-btn" on:click={hideForm}>
       <i class="fas fa-times" />
       Close
